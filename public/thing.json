@@ -1,0 +1,1 @@
+{"filters":[{"property":"status","operation":"IN","values":["OPEN","PENDING"]}]}
