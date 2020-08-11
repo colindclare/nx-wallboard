@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 
-class GetDrift implements ShouldQueue
+class GetDriftUsers implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -33,7 +33,7 @@ class GetDrift implements ShouldQueue
     public function handle()
     {
 
-        $config = Config::get('sources.drift_users');
+        $config = Config::get('sources.drift_conversations');
 
         $response = Http::withToken($config["token"])->get($config["gateway"]);
 

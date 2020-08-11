@@ -41,6 +41,9 @@
             "database/factories"
         ]
     },
+    "repositories": [
+        { "type": "vcs", "url": "https://github.com/nocworx/lib" }
+    ],
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
