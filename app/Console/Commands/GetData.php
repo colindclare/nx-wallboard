@@ -26,6 +26,8 @@ class GetData extends Command
      */
     protected $description = 'Command description';
 
+    protected $config;
+
     /**
      * Create a new command instance.
      *
@@ -33,6 +35,7 @@ class GetData extends Command
      */
     public function __construct()
     {
+        $this->config = Config::get('sources.drift_conversations');
         parent::__construct();
     }
 
@@ -43,46 +46,45 @@ class GetData extends Command
      */
     public function handle()
     {
-        $config = Config::get('sources.drift_conversations');
+        $conversations = $this->getOpenConversations();
+        $user_map = $this->getUserMap();
 
-        if($response->ok()){
-
-            $convo_list = $response->getConversationList();
-
-            foreach($convo_list["data"] as $convo){
-
-                //DB::table($config['table'])->updateOrInsert(
-                //[
-                //'bot' => $convo["bot"]
-                //],
-                //['availability' => $convo["availability"]]
-                //);
-
-                //$convo_history[] = [
-                //'availability' => $convo["availability"]
-                //];
+        foreach($conversations as $conversation){
+            // Ignore open converstions that don't have a user, they were likely abandoned
+            if(isset($user_map[$conversation])){
+                if(isset($convs_per_user[$user_map[$conversation]])){
+                    $convos_per_user[$user_map[$conversation]] += 1;
+                } else {
+                    $convos_per_user[$user_map[$conversation]] = 1;
+                }
             }
-
-            //DB::table($config['history_table'])->insert($convo_history);
-
-        } else {
-            //TODO
         }
+
+        echo print_r($convos_per_user,true);
 
         return 0;
     }
 
-    private function getUserMapping() {
+    private function getOpenConversations() {
 
-        $response = Http::withToken($config["token"])->get($config["gateway"], [
+        $response = Http::withToken(
+            $this->config["token"]
+        )->get($this->config["gateway"], [
             'statusId' => '1',
-            'statusId' => '1',
-            'limit' => $config["chunk_size"]
+            'limit' => $this->config["chunk_size"]
         ]);
+
+        $conversation_list = $response->json();
+
+        foreach($conversation_list["data"] as $conversation){
+            $open_conversations[] = $conversation["id"];
+        }
+
+        return $open_conversations;
 
     }
 
-    private function getConversationList() {
+    private function getUserMap() {
 
         $body = [
             "filters" => [
@@ -93,7 +95,7 @@ class GetData extends Command
                 [
                     "property" => "updatedAt",
                     "operation" => "GT",
-                    "value" => "2020-08-10"
+                    "value" => strtotime("-6hour")
                 ]
             ],
             "metrics" => [
@@ -102,15 +104,21 @@ class GetData extends Command
         ];
 
         $response = Http::withToken(
-            $config["token"]
+            $this->config["token"]
         )->withBody(
             json_encode($body),
             "application/json"
         )->post(
-            $config["report_gateway"]
+            $this->config["report_gateway"]
         );
 
-        echo print_r($response->json(),true);
+        $conversation_list = $response->json();
+
+        foreach($conversation_list["data"] as $conversation){
+            $map[$conversation["conversationId"]] = $conversation["metrics"][0];
+        }
+
+        return $map;
 
     }
 }
