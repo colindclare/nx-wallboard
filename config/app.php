@@ -227,7 +227,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
-        'DriftUsers' => App\Sources\DriftUsers::class,
+        'Drift' => App\Sources\Drift::class,
 
     ],
 
