@@ -20,14 +20,19 @@ return [
         ]
     ],
 
-    'nocworx_oauth' => [
+    'nocworx' => [
         'gateway' => 'https://nocworx.nexcess.net/',
         'public' => env('NOCWORX_PUBLIC'),
-        'private' => env('NOWORX_PRIVATE'),
-        'name' => 'wallboartapi-oauth',
-        'agent_id' => '1140',
+        'private' => env('NOCWORX_PRIVATE'),
         'user_table' => 'nocworx_users',
-        'ticket_table' => 'nocworx_tickets'
+        'ticket_table' => 'nocworx_tickets',
+	'endpoints' => [
+	    'all_users' => [
+		'uri' => 'agent',
+		'data' => ['filter[status]' => 'active']
+	    ],
+
+	]
     ]
 
 ];
