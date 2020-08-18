@@ -8,6 +8,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class Drift
 {
@@ -46,45 +47,54 @@ class Drift
 
     private function processUsers(Array $convo_counts) {
 
-        $response = Http::withToken($this->config['token'])->get($this->config['users']['gateway']);
+        $userlist = Http::withToken(
+            $this->config['token']
+        )->get(
+            $this->config['users']['gateway']
+        )->throw()->json();
 
-        if(!$response->ok()){
-            return false;
-        }
+        try {
 
-        $userlist = $response->json();
+            foreach($userlist['data'] as $user){
 
-        foreach($userlist['data'] as $user){
+                if(!isset($convo_counts[$user['id']])){
+                    $convo_counts[$user['id']] = 0;
+                }
 
-            if(!isset($convo_counts[$user['id']])){
-                $convo_counts[$user['id']] = 0;
+                DB::table(
+                    $this->config['users']['table']
+                )->updateOrInsert(
+                    [
+                        'id' => $user['id'],
+                    ],
+                    [
+                        'name' => $user['name'],
+                        'orgId' => $user['orgId'],
+                        'alias' => $user['alias'],
+                        'email' => $user['email'],
+                        'role' => $user['role'],
+                        'verified' => $user['verified'],
+                        'bot' => $user['bot'],
+                        'availability' => $user['availability'],
+                        'conversations' => $convo_counts[$user['id']]
+                    ]
+                );
+
+                $users_history[] = [
+                    'id' => $user['id'],
+                    'availability' => $user['availability']
+                ];
+
             }
 
-            DB::table($this->config['users']['table'])->updateOrInsert(
-                [
-                    'id' => $user['id'],
-                ],
-                [
-                    'name' => $user['name'],
-                    'orgId' => $user['orgId'],
-                    'alias' => $user['alias'],
-                    'email' => $user['email'],
-                    'role' => $user['role'],
-                    'verified' => $user['verified'],
-                    'bot' => $user['bot'],
-                    'availability' => $user['availability'],
-                    'conversations' => $convo_counts[$user['id']]
-                ]
-            );
+            DB::table(
+                $this->config['users']['history_table']
+            )->insert($users_history);
 
-            $users_history[] = [
-                'id' => $user['id'],
-                'availability' => $user['availability']
-            ];
-
+        } catch (\PDOException $e) {
+            Log::error($e->getMessage());
+            return false;
         }
-
-        DB::table($this->config['users']['history_table'])->insert($users_history);
 
 
         return true;
@@ -92,14 +102,12 @@ class Drift
 
     private function getOpenConversations() {
 
-        $response = Http::withToken(
+        $conversation_list = Http::withToken(
             $this->config['token']
         )->get($this->config['conversations']['gateway'], [
             'statusId' => '1',
             'limit' => $this->config['conversations']['chunk_size']
-        ]);
-
-        $conversation_list = $response->json();
+        ])->throw()->json();
 
         foreach($conversation_list['data'] as $conversation){
             $open_conversations[] = $conversation['id'];
@@ -128,16 +136,14 @@ class Drift
             ]
         ];
 
-        $response = Http::withToken(
+        $conversation_list = Http::withToken(
             $this->config['token']
         )->withBody(
             json_encode($body),
             'application/json'
         )->post(
             $this->config['conversations']['report_gateway']
-        );
-
-        $conversation_list = $response->json();
+        )->throw()->json();
 
         foreach($conversation_list['data'] as $conversation){
             $map[$conversation['conversationId']] = $conversation['metrics'][0];
@@ -149,16 +155,27 @@ class Drift
 
     private function updateTotals() {
 
-        $response = Http::withToken($this->config['token'])->get($this->config['stats']['gateway']);
+        $stats = Http::withToken(
+            $this->config['token']
+        )->get(
+            $this->config['stats']['gateway']
+        )->throw()->json();
 
-        $stats = $response->json();
+        try {
 
-        DB::table($this->config['stats']['history_table'])->insert(
-            [
-                'open' => $stats['conversationCount']['OPEN'],
-                'pending' => $stats['conversationCount']['PENDING']
-            ]
-        );
+            DB::table(
+                $this->config['stats']['history_table']
+            )->insert(
+                [
+                    'open' => $stats['conversationCount']['OPEN'],
+                    'pending' => $stats['conversationCount']['PENDING']
+                ]
+            );
+
+        } catch (\PDOException $e) {
+            Log::error($e->getMessage());
+            return false;
+        }
     }
 
 }
