@@ -31,7 +31,7 @@ class Drift
         foreach($conversations as $conversation){
             // Ignore open converstions that don't have a user, they were likely abandoned
             if(isset($user_map[$conversation])){
-                if(isset($convs_per_user[$user_map[$conversation]])){
+                if(isset($convo_counts[$user_map[$conversation]])){
                     $convo_counts[$user_map[$conversation]] += 1;
                 } else {
                     $convo_counts[$user_map[$conversation]] = 1;
