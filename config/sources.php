@@ -10,12 +10,8 @@ return [
             'history_table' => 'drift_users_history'
         ],
         'conversations' => [
-            'gateway' => 'https://driftapi.com/conversations/list',
+            'gateway' => 'https://driftapi.com/conversations/',
             'report_gateway' => 'https://driftapi.com/reports/conversations',
-            'chunk_size' => '50',
-        ],
-        'stats' => [
-            'gateway' => 'https://driftapi.com/conversations/stats',
             'history_table' => 'drift_stats_history'
         ]
     ],
