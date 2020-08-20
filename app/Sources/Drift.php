@@ -14,6 +14,7 @@ class Drift
 {
 
     const SUPPORT_TAG = 2216153;
+    const BOT = 2025865;
 
     protected $config;
 
@@ -36,7 +37,13 @@ class Drift
                     $this->config['token']
                 )->get(
                     $this->config['conversations']['gateway'] . $conversation
-                )->throw()->json()['data']['participants'][0];
+                )->throw()->json();
+
+                if(isset($user['data']['participants'][0])) {
+                    $user = $user['data']['participants'][0];
+                } else {
+                    $user = self::BOT;
+                }
 
             }
 
