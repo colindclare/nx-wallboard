@@ -8,7 +8,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class NocworxToken implements ShouldQueue
+use App\Sources\NocWorx;
+
+class NocWorxSiteDown implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -29,6 +31,7 @@ class NocworxToken implements ShouldQueue
      */
     public function handle()
     {
-        //
+	    $nocworx = new NocWorx();
+	    $nocworx->processSiteDowns();
     }
 }
