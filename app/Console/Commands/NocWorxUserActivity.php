@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\Config;
 
 use App\Sources\NocWorx;
 
-class GetNocWorxUser extends Command
+class NocWorxUserActivity extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'nocworx:get-user';
+    protected $signature = 'nocworx:user-activity';
 
     /**
      * The console command description.
@@ -44,8 +44,7 @@ class GetNocWorxUser extends Command
     public function handle()
     {
 	$nocworx = new NocWorx();
-	$uid = '801';
-	$nocworx->getUser($uid);
+	$nocworx->processUserActivity();
 
     }
 }
