@@ -26,6 +26,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->job(new \App\Jobs\GetDrift)->everyMinute();
+        $schedule->job(new \App\Jobs\NocWorxUsers)->daily();
+        $schedule->job(new \App\Jobs\NocWorxTickets)->everyTwoMinutes();
+        $schedule->job(new \App\Jobs\NocWorxSiteDown)->everyMinute();
+        $schedule->job(new \App\Jobs\NocWorxUserActivity)->everyMinute();
     }
 
     /**
