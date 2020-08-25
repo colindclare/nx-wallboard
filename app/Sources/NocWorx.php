@@ -89,22 +89,13 @@ class NocWorx {
 
     
     public function processTicketQueue() {
-	// Declare starting variables
-	$escalations = [
-	        1 => 'Tier 1',
-	        2 => 'Tier 2',
-	        3 => 'ESG',
-		4 => 'Worx/SysOps Pending',
-	        5 => 'Total'
-	];
+	$tickets['support'] = $this->getAllTickets('support');
+	$tickets['migrations'] = $this->getAllTickets('migrations');
 
-	// Get all tickets
-	$tickets = $this->getAllTickets();
+	$ticketTotals['support'] = $this->countTickets($tickets['support'], $this->config['escalations']['support']);
+	$ticketTotals['migrations'] = $this->countTickets($tickets['migrations'], $this->config['escalations']['migrations']);
 
-	// Iterate through tickets and count per esclation
-	$ticketTotals = $this->collateTickets($tickets, $escalations);
-
-        foreach ($ticketTotals as $total) {
+        foreach ($ticketTotals['support'] as $total) {
             DB::table($this->config['ticket_table'])->updateOrInsert(
                 [
                     'id' => $total['id'],
@@ -115,7 +106,19 @@ class NocWorx {
                     'escalation' => $total['escalation']
                 ]
             );
-        }	
+	}	
+        foreach ($ticketTotals['migrations'] as $total) {
+            DB::table($this->config['migrations_table'])->updateOrInsert(
+                [
+                    'id' => $total['id'],
+                ],
+                [
+		    'total' => $total['total'],	
+		    'noirt' => $total['noirt'],	
+                    'escalation' => $total['escalation']
+                ]
+            );
+	}	
     }
 
     public function processSiteDowns() {
@@ -196,67 +199,50 @@ class NocWorx {
 	return $supportUsers;
     }
 
-    private function getAllTickets() {
-	$uri = $this->endpoints['support_tickets']['uri'];
-	$data = $this->endpoints['support_tickets']['data'];
+    private function getAllTickets($endpoint) {
+	$uri = $this->endpoints[$endpoint]['uri'];
+	$data = $this->endpoints[$endpoint]['data'];
 
 	return $tix = $this->callNocworx($uri, $data);
     }
 
-    private function collateTickets($tickets, $escalations) {
-	$ticketTotals = [];
-	$ticketCounts = [
-		'Tier 1' => 0,
-		'Tier 2' => 0,
-		'ESG' => 0,
-		'Worx/SysOps Pending' => 0,
-		'Total' => 0
-	];
-	$noIRTCounts = [
-		'Tier 1' => 0,
-		'Tier 2' => 0,
-		'ESG' => 0,
-		'Worx/SysOps Pending' => 0,
-		'Total' => 0
-	];
-
-
-	foreach ($tickets as $ticket) {
-	    // Determine if escalated and increase total counts per esclation
-	    if (array_key_exists('escalation', $ticket)) {
-		if ($ticket['escalation']['identity'] == 'Tier Two') {
-		    $escalation = 'Tier 2';
-		} else {
-		    $escalation = $ticket['escalation']['identity']; 
-		}
-	    } else {
-		$escalation = 'Tier 1';
-	    }
-
-	    // Determine if IRT'd and increase non-IRT count per esclation and total non-IRT
-	    if ($ticket['num_posts_staff'] == 0) {
-		$noIRTCounts[$escalation]++;
-		$noIRTCounts['Total']++;
-	    }
-
-	    $ticketCounts[$escalation]++;
-	    $ticketCounts['Total']++;
-	    
+    private function countTickets($queue, $escalations) {
+	// Instantiate arrays
+	foreach ($escalations as $esc) {
+	    $ticketCounts[$esc['name']] = 0;
+	    $noIRTCounts[$esc['name']] = 0;
 	}
 
-	foreach ($escalations as $id => $escalation) {
-	    $perEscalation = [
-		    'id' => $id,
-		    'total' => $ticketCounts[$escalation],
-		    'noirt' => $noIRTCounts[$escalation],
-		    'escalation' => $escalation
-	    ];
+        foreach ($queue as $ticket) { 
+            if (array_key_exists('escalation', $ticket)) { 
+		$escId = $ticket['escalation']['id'];
+		$escalation = $escalations[$escId]['name'];
+            } else { 
+                $escalation = 'Unescalated';
+            } 
 
-	$ticketTotals[] = $perEscalation;
-        }
+            // Determine if IRT'd and increase non-IRT count per esclation and total non-IRT
+            if ($ticket['num_posts_staff'] == 0) { 
+                $noIRTCounts[$escalation]++;
+                $noIRTCounts['Total']++;
+            } 
 
-	return $ticketTotals;
+            $ticketCounts[$escalation]++;
+            $ticketCounts['Total']++;
+        } 
 
+        foreach ($escalations as $id => $esc) { 
+            $perEscalation = [ 
+                    'id' => $esc['id'],
+                    'total' => $ticketCounts[$esc['name']],
+                    'noirt' => $noIRTCounts[$esc['name']],
+                    'escalation' => $esc['name']
+            ];
+
+        $ticketTotals[] = $perEscalation;
+        } 
+
+        return $ticketTotals;
     }
 
     private function getSiteDownTickets() {
