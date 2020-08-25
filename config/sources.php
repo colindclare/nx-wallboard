@@ -16,6 +16,22 @@ return [
         ]
     ],
 
+    'adp' => [
+	'token' => env('ADP_TOKEN'),
+	'gateway' => 'https://schedules.liquidweb.com/api/v1',
+	'endpoints' => [
+	    'schedules' => [
+		'uri' => '/adp/schedules',
+		'params' => ''
+	    ],
+	    'punches' => [
+		'uri' => '/adp/punches',
+		'params' => ''	
+	    ]
+	]
+
+    ],
+
     'nocworx' => [
         'gateway' => 'https://nocworx.nexcess.net/',
         'public' => env('NOCWORX_PUBLIC'),
