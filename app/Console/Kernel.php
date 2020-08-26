@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new \App\Jobs\NocWorxTickets)->everyTwoMinutes();
         $schedule->job(new \App\Jobs\NocWorxSiteDown)->everyMinute();
         $schedule->job(new \App\Jobs\NocWorxUserActivity)->everyMinute();
+        $schedule->job(new \App\Jobs\GetPBX)->everyMinute();
     }
 
     /**
