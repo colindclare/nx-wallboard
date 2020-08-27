@@ -16,6 +16,15 @@ return [
         ]
     ],
 
+    'pbx' => [
+        'host' => '10.30.100.40',
+        'port' => '5038',
+        'username' => env('PBX_USERNAME'),
+        'secret' => env('PBX_SECRET'),
+        'queue_users_table' => 'queue_users',
+        'queues_table' => 'queues'
+    ],
+
     'adp' => [
 	'token' => env('ADP_TOKEN'),
 	'gateway' => 'https://schedules.liquidweb.com/api/v1',
@@ -47,7 +56,7 @@ return [
 	    ],
 	    'punches' => [
 		'uri' => '/adp/punches',
-		'data' => ''	
+		'data' => ''
 	    ]
 	]
 
@@ -127,10 +136,10 @@ return [
 	    ],
 	    'migrations' => [
 		'uri' => 'ticket',
-                'data' => [ 
+                'data' => [
                     'filter[department]' => '8',
                     'filter[status]' => '1',
-                    'pageIndex' => 0 
+                    'pageIndex' => 0
                 ]
 	    ],
 	    'site_down_tickets' => [
