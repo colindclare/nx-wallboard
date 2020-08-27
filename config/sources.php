@@ -109,7 +109,8 @@ return [
 		136 => ['name' => 'Phase 3: Re-Sync In Progress', 'id' => 5],
 		107 => ['name' => 'Phase 4: DNS Update', 'id' => 6],
 		108 => ['name' => 'Complete','id' => 7],
-		7 => ['name' => 'Total', 'id' => 8]
+		137 => ['name' => 'Audit','id' => 8],
+		7 => ['name' => 'Total', 'id' => 9]
 	    ]
 	],
 	'endpoints' => [
@@ -134,6 +135,15 @@ return [
 		    'pageIndex' => 0
 		]
 	    ],
+	    'support_hdm' => [
+                  'uri' => 'ticket',
+                  'data' => [
+                      'filter[department]' => '1',
+                      'filter[escalation]' => '26',
+                      'filter[status]' => '104',
+                      'pageIndex' => 0
+                  ]
+              ],
 	    'migrations' => [
 		'uri' => 'ticket',
                 'data' => [

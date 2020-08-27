@@ -4,6 +4,7 @@ namespace App\Sources;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use App\NocWorx\Lib\OAuth\Credentials;
 use App\NocWorx\Lib\OAuth\Request;
 
@@ -47,53 +48,16 @@ class NocWorx {
 
     }
 
-    public function processUsers() {
-
-	$users = $this->getAllUsers();
-
-	$supportUsers = $this->getSupportUsers($users);
-	
-	foreach ($supportUsers as $user) {
-	    DB::table($this->config['user_table'])->updateOrInsert(
-                [
-                    'id' => $user['id'],
-                ],
-                [
-                    'nickname' => $user['nickname'],
-                    'email' => $user['email'],
-		    'activity' => $user['activity'],
-		    'login_date' => $user['login_date'],
-		    'activity_date' => $user['activity_date'],
-		    'role' => $user['role']
-                ]
-            );
-	}
-    }
-
-    public function processUserActivity() {
-	
-	$users = $this->getAllUsers();
-
-	foreach ($users as $user) {
-		DB::table($this->config['user_table'])
-			->where('id', $user['id'])
-			->update(
-                [
-                    'activity' => $user['activity'],
-                    'login_date' => $user['login_date'],
-                    'activity_date' => $user['activity_date'],
-                ]
-            );
-        }
-    }
-
-    
     public function processTicketQueue() {
 	$tickets['support'] = $this->getAllTickets('support');
 	$tickets['migrations'] = $this->getAllTickets('migrations');
+	$tickets['support_hdm'] = $this->getAllTickets('support_hdm');
 
 	$ticketTotals['support'] = $this->countTickets($tickets['support'], $this->config['escalations']['support']);
 	$ticketTotals['migrations'] = $this->countTickets($tickets['migrations'], $this->config['escalations']['migrations']);
+
+	$hdmWpCount = count($tickets['support_hdm']);
+	$ticketTotals['support'][5]['total'] = $ticketTotals['support'][5]['total'] + $hdmWpCount;
 
         foreach ($ticketTotals['support'] as $total) {
             DB::table($this->config['ticket_table'])->updateOrInsert(
@@ -140,65 +104,6 @@ class NocWorx {
 	}
     }
 
-    private function getAllUsers() {
-	$uri = $this->endpoints['all_users']['uri'];
-	$data = $this->endpoints['all_users']['data'];
-
-	return $users = $this->callNocworx($uri, $data);
-
-    }
-
-    private function getUser($uid) {
-	$uri = $this->endpoints['all_users']['uri'].'/'.$uid;
-	$data = [];
-
-	return $user = $this->callNocworx($uri, $data);
-
-    }
-
-    private function getSupportUsers($users) {
-
-	$supportUsers = [];
-	$supportRoleIds = [
-		2 => 'Level 1 Techs',
-		12 => 'Level 2 Techs',
-		16 => 'ESG',
-		27 => 'Support Leader'
-	];
-
-	foreach ($users as $user) {
-	    $user_data = $this->getUser($user['user_id']);
-	    $user_roles = $user_data['roles'];
-	    $supportRolesHeld = [];
-	    $finalData = [];
-	    
-	    foreach ($user_roles as $role) {
-		if (array_key_exists($role['role_id'], $supportRoleIds)) {
-		    array_push($supportRolesHeld, $role['role_id']);
-		}
-	    }
-
-	   
-
-	    if (count($supportRolesHeld) > 0) {
-		rsort($supportRolesHeld);
-	        $finalData = [
-	            'id' => $user['user_id'],
-                    'nickname' => $user['nickname'],
-                    'email' => $user['email'],
-                    'activity' => $user['activity'],
-                    'login_date' => $user['login_date'],
-                    'activity_date' => $user['activity_date'],
-                    'role' => $supportRoleIds[$supportRolesHeld[0]]
-	        ];
-
-	        $supportUsers[] = $finalData;
-	    }
-	}
-
-	return $supportUsers;
-    }
-
     private function getAllTickets($endpoint) {
 	$uri = $this->endpoints[$endpoint]['uri'];
 	$data = $this->endpoints[$endpoint]['data'];
@@ -216,7 +121,12 @@ class NocWorx {
         foreach ($queue as $ticket) { 
             if (array_key_exists('escalation', $ticket)) { 
 		$escId = $ticket['escalation']['id'];
-		$escalation = $escalations[$escId]['name'];
+		if (array_key_exists($escId, $escalations)) {
+		    $escalation = $escalations[$escId]['name'];
+		} else {
+		    Log::error("Unidentified escalation found: $escId, ".$ticket['escalation']['name']);
+		    $escalation = 'Unescalated';
+		}
             } else { 
                 $escalation = 'Unescalated';
             } 
