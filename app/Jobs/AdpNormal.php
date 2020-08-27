@@ -8,8 +8,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-use App\Sources\NocWorx;
-class NocWorxUserActivity implements ShouldQueue
+use App\Sources\Adp;
+class AdpNormal implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -30,7 +30,7 @@ class NocWorxUserActivity implements ShouldQueue
      */
     public function handle()
     {
-	$nocworx = new NocWorx();
-	$nocworx->processUserActivity();
+	$adp = new Adp();
+	$adp->processSchedules();
     }
 }
