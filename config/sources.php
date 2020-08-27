@@ -21,7 +21,8 @@ return [
         'port' => '5038',
         'username' => env('PBX_USERNAME'),
         'secret' => env('PBX_SECRET'),
-
+        'queue_users_table' => 'queue_users',
+        'queues_table' => 'queues'
     ],
 
     'adp' => [
