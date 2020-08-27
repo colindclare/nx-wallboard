@@ -19,14 +19,35 @@ return [
     'adp' => [
 	'token' => env('ADP_TOKEN'),
 	'gateway' => 'https://schedules.liquidweb.com/api/v1',
+	'schedule_table' => 'adp_schedule',
 	'endpoints' => [
+	    'auth' => [
+		'uri' => '/auth',
+		'data' => [
+		    'username' => 'nxwallboard',
+		    'password' => env('ADP_PASSWORD'),
+		    'header' => 'Content-Type: application/x-www-form-urlencoded'
+		]
+	    ],
 	    'schedules' => [
 		'uri' => '/adp/schedules',
-		'params' => ''
+		'data' => [
+		    'normal' => [
+		        'per_page' => 400,
+		        'start_date' => date("Y-m-d"),
+		        'end_date' => date("Y-m-d")
+		    ],
+		    'third' => [
+			'per_page' => 400,
+			'start_date' => date("Y-m-d"),
+			'end_date' => date("Y-m-d", strtotime(' +1 day')),
+			'end_time' => '07:00:00'
+		    ]
+		]
 	    ],
 	    'punches' => [
 		'uri' => '/adp/punches',
-		'params' => ''	
+		'data' => ''	
 	    ]
 	]
 
