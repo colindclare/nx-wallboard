@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.2.5",
+        "cweagans/composer-patches": "^1.6",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^6.3",
@@ -31,6 +32,12 @@
     "extra": {
         "laravel": {
             "dont-discover": []
+        },
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "marcelog/pami": {
+                "Fix PHP 7.4 compatibility, and bad logic using feof()": "patches/PAMI.patch"
+            }
         }
     },
     "autoload": {

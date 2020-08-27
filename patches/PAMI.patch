@@ -1,0 +1,26 @@
+diff --git a/src/PAMI/Client/Impl/ClientImpl.php b/src/PAMI/Client/Impl/ClientImpl.php
+index 853e4b74..d34d0aef 100644
+--- a/src/PAMI/Client/Impl/ClientImpl.php
++++ b/src/PAMI/Client/Impl/ClientImpl.php
+@@ -238,7 +238,7 @@ class ClientImpl implements IClient
+         $msgs = array();
+         // Read something.
+         $read = @fread($this->socket, 65535);
+-        if ($read === false || @feof($this->socket)) {
++        if ($read === false) {
+             throw new ClientException('Error reading');
+         }
+         $this->currentProcessingMessage .= $read;
+diff --git a/src/PAMI/Message/Event/Factory/Impl/EventFactoryImpl.php b/src/PAMI/Message/Event/Factory/Impl/EventFactoryImpl.php
+index c97becf8..4b9cf32a 100644
+--- a/src/PAMI/Message/Event/Factory/Impl/EventFactoryImpl.php
++++ b/src/PAMI/Message/Event/Factory/Impl/EventFactoryImpl.php
+@@ -69,7 +69,7 @@ class EventFactoryImpl
+         for ($i = 0; $i < $totalParts; $i++) {
+             $parts[$i] = ucfirst($parts[$i]);
+         }
+-        $name = implode($parts, '');
++        $name = implode('', $parts);
+         $className = '\\PAMI\\Message\\Event\\' . $name . 'Event';
+         if (class_exists($className, true)) {
+             return new $className($message);
