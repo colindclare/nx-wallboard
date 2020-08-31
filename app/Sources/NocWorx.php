@@ -82,7 +82,7 @@ class NocWorx {
                     'escalation' => $total['escalation']
                 ]
             );
-	}	
+	}
     }
 
     public function processSiteDowns() {
@@ -124,7 +124,7 @@ class NocWorx {
 		if (array_key_exists($escId, $escalations)) {
 		    $escalation = $escalations[$escId]['name'];
 		} else {
-		    Log::error("Unidentified escalation found: $escId, ".$ticket['escalation']['name']);
+		    Log::error("Unidentified escalation found: $escId, ".$ticket['escalation']['identity']);
 		    $escalation = 'Unescalated';
 		}
             } else { 

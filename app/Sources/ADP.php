@@ -40,7 +40,8 @@ class Adp
                     'start_time' => $user['start_time'],
                     'end_time' => $user['end_time'],
                     'email' => $user['email'],
-                    'title' => $user['title']
+                    'title' => $user['title'],
+                    'type' => $user['type']
                 ]
             );
         }
@@ -71,12 +72,13 @@ class Adp
 
 	    if (count($matches) > 0) {
 		    $userData =  [
-			'id' => $user['id'],
+			'id' => $user['person']['id'],
 			'name' => $user['person']['first_name'].' '.$user['person']['last_name'],
 			'start_time' => $user['start_date'].' '.$user['start_time'],
 			'end_time' => $user['end_date'].' '.$user['end_time'],
 			'email' => $user['person']['email'], 
-			'title' => $user['person']['user']['title']
+			'title' => $user['person']['user']['title'],
+			'type' => $user['type']
 		    ];
 
 	    	    $schedules[] = $userData;
