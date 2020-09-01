@@ -33,7 +33,9 @@ class Drift
 
             if($user === "NaN") {
 
-                $user = Http::withToken(
+                $user = Http::withOptions([
+                    'timeout' => 60
+                ])->withToken(
                     $this->config['token']
                 )->get(
                     $this->config['conversations']['gateway'] . $conversation
@@ -63,7 +65,9 @@ class Drift
 
     private function processUsers(Array $convo_counts) {
 
-        $userlist = Http::withToken(
+        $userlist = Http::withOptions([
+            'timeout' => 60
+        ])->withToken(
             $this->config['token']
         )->get(
             $this->config['users']['gateway']
@@ -136,7 +140,9 @@ class Drift
             ]
         ];
 
-        $conversation_list = Http::withToken(
+        $conversation_list = Http::withOptions([
+            'timeout' => 60
+        ])->withToken(
             $this->config['token']
         )->withBody(
             json_encode($body),

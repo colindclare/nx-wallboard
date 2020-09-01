@@ -44,8 +44,8 @@ class PBX
             'port' => $this->config['port'],
             'username' => $this->config['username'],
             'secret' => $this->config['secret'],
-            'connect_timeout' => 10000,
-            'read_timeout' => 10000
+            'connect_timeout' => 60,
+            'read_timeout' => 60
         );
 
         try {
