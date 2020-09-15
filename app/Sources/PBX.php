@@ -105,7 +105,7 @@ class PBX
             )->insert($users);
 
             DB::table(
-                $this->config['queue_users_table']
+                $this->config['queues_table']
             )->truncate();
 
             DB::table(
