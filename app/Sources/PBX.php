@@ -66,7 +66,7 @@ class PBX
 
                         case "PAMI\Message\Event\QueueParamsEvent":
                             $queues[] = [
-                                "queue" => $key,
+                                "queue" => $value,
                                 "max" => $event->getMax(),
                                 "calls" => $event->getCalls(),
                                 "hold_time" => $event->getHoldTime(),
@@ -79,11 +79,11 @@ class PBX
 
                         case "PAMI\Message\Event\QueueMemberEvent":
                             $users[] = [
-                                "queue" => $key,
+                                "queue" => $value,
                                 "name" => $event->getMemberName(),
                                 "membership" => $event->getMembership(),
                                 "calls_taken" => $event->getCallsTaken(),
-                                "status" => self::QUEUE_STATUS[$event->getStatus()],
+                                "status" => $event->getStatus(),
                                 "paused" => $event->getPaused()
                             ];
                             break;
