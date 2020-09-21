@@ -28,8 +28,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new \App\Jobs\GetDrift)->everyMinute();
         $schedule->job(new \App\Jobs\NocWorxTickets)->everyTwoMinutes();
         $schedule->job(new \App\Jobs\NocWorxSiteDown)->everyMinute();
-        //$schedule->job(new \App\Jobs\AdpNormal)->daily();
-        //$schedule->job(new \App\Jobs\AdpThird)->dailyAt('07:00');
+        $schedule->job(new \App\Jobs\AdpNormal)->daily();
+        $schedule->job(new \App\Jobs\AdpThird)->dailyAt('07:00');
         $schedule->job(new \App\Jobs\GetPBX)->everyMinute();
     }
 
