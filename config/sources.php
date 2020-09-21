@@ -22,6 +22,7 @@ return [
         'username' => env('PBX_USERNAME'),
         'secret' => env('PBX_SECRET'),
         'queue_users_table' => 'pbx_queue_users',
+        'queue_entries_table' => 'pbx_queue_entries',
         'queues_table' => 'pbx_queues'
     ],
 

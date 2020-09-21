@@ -42,7 +42,8 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "PAMI\\": "app/overrides/PAMI"
         },
         "classmap": [
             "database/seeds",

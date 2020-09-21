@@ -45,7 +45,7 @@ class PBX
             'username' => $this->config['username'],
             'secret' => $this->config['secret'],
             'connect_timeout' => 60,
-            'read_timeout' => 60
+            'read_timeout' => 600
         );
 
         try {
@@ -55,6 +55,7 @@ class PBX
 
             $users = array();
             $queues = array();
+            $entries = array();
 
             foreach(self::QUEUES as $key => $value){
 
@@ -88,6 +89,16 @@ class PBX
                             ];
                             break;
 
+                        case "PAMI\Message\Event\QueueEntryEvent":
+                            $entries[] = [
+                                "queue" => $value,
+                                "position" => $event->getPosition(),
+                                "calleridnum" => $event->getCallerIDNum(),
+                                "calleridname" => $event->getCallerIDName(),
+                                "wait" => $event->getWait()
+                            ];
+                            break;
+
                         default:
                             break;
                     }
@@ -103,6 +114,14 @@ class PBX
             DB::table(
                 $this->config['queue_users_table']
             )->insert($users);
+
+            DB::table(
+                $this->config['queue_entries_table']
+            )->truncate();
+
+            DB::table(
+                $this->config['queue_entries_table']
+            )->insert($entries);
 
             DB::table(
                 $this->config['queues_table']
