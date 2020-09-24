@@ -1,16 +1,3 @@
-diff --git a/src/PAMI/Client/Impl/ClientImpl.php b/src/PAMI/Client/Impl/ClientImpl.php
-index 853e4b74..d34d0aef 100644
---- a/src/PAMI/Client/Impl/ClientImpl.php
-+++ b/src/PAMI/Client/Impl/ClientImpl.php
-@@ -238,7 +238,7 @@ class ClientImpl implements IClient
-         $msgs = array();
-         // Read something.
-         $read = @fread($this->socket, 65535);
--        if ($read === false || @feof($this->socket)) {
-+        if ($read === false) {
-             throw new ClientException('Error reading');
-         }
-         $this->currentProcessingMessage .= $read;
 diff --git a/src/PAMI/Message/Event/Factory/Impl/EventFactoryImpl.php b/src/PAMI/Message/Event/Factory/Impl/EventFactoryImpl.php
 index c97becf8..4b9cf32a 100644
 --- a/src/PAMI/Message/Event/Factory/Impl/EventFactoryImpl.php
