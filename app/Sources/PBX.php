@@ -189,17 +189,17 @@ class PBX
 
     }
 
-    public function processEvent($message){
+    public function processEvent($event){
 
-        switch ($message->getName()) {
+        switch ($event->getName()) {
 
             case "AgentConnect":
-                if(in_array($message->getQueue(), SELF::QUEUES)){
-                    echo "Agent ".$message->getMemberName()." started call\n";
+                if(in_array($event->getQueue(), SELF::QUEUES)){
+                    echo "Agent ".$event->getMemberName()." started call\n";
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
-                        "name", $message->getMemberName()
+                        "name", $event->getMemberName()
                     )->update([
                         "status" => SELF::QUEUE_STATUS["IN_CALL"]
                     ]);
@@ -207,12 +207,12 @@ class PBX
                 break;
 
             case "AgentComplete":
-                if(in_array($message->getQueue(), SELF::QUEUES)){
-                    echo "Agent ".$message->getMemberName()." finished call\n";
+                if(in_array($event->getQueue(), SELF::QUEUES)){
+                    echo "Agent ".$event->getMemberName()." finished call\n";
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
-                        "name", $message->getMemberName()
+                        "name", $event->getMemberName()
                     )->update([
                         "status" => SELF::QUEUE_STATUS["AVAILABLE"]
                     ]);
@@ -220,25 +220,25 @@ class PBX
                 break;
 
             case "QueueCallerJoin":
-                if(in_array($message->getQueue(), SELF::QUEUES)){
-                    echo "Caller ".$message->getCallerIDNum()." is calling\n";
+                if(in_array($event->getQueue(), SELF::QUEUES)){
+                    echo "Caller ".$event->getCallerIDNum()." is calling\n";
                     DB::table(
                         $this->config['queue_entries_table']
                     )->insert([
                         "channel" => $event->getChannel(),
-                        "queue" => $message->getQueue(),
-                        "position" => $message->getPosition(),
-                        "calleridnum" => $message->getCallerIDNum(),
-                        "calleridname" => $message->getCallerIDName(),
-                        "call_time" => DB::raw('now() - '.$message->getWait())
+                        "queue" => $event->getQueue(),
+                        "position" => $event->getPosition(),
+                        "calleridnum" => $event->getCallerIDNum(),
+                        "calleridname" => $event->getCallerIDName(),
+                        "call_time" => DB::raw('now() - '.$event->getWait())
                     ]);
                 }
                 break;
 
             case "QueueCallerAbandon":
             case "QueueCallerLeave":
-                if(in_array($message->getQueue(), SELF::QUEUES)){
-                    echo "Caller ".$message->getCallerIDNum()." left queue\n";
+                if(in_array($event->getQueue(), SELF::QUEUES)){
+                    echo "Caller ".$event->getCallerIDNum()." left queue\n";
                     DB::table(
                         $this->config['queue_entries_table']
                     )->where(
@@ -248,41 +248,41 @@ class PBX
                 break;
 
             case "QueueMemberAdded":
-                if(in_array($message->getQueue(), SELF::QUEUES)){
-                    echo "Agent ".$message->getMemberName()."logged in\n";
+                if(in_array($event->getQueue(), SELF::QUEUES)){
+                    echo "Agent ".$event->getMemberName()."logged in\n";
                     DB::table(
                         $this->config['queue_users_table']
                     )->insert([
-                        "queue" => $message->getQueue(),
-                        "name" => $message->getMemberName(),
-                        "membership" => $message->getMembership(),
-                        "calls_taken" => $message->getCallsTaken(),
-                        "status" => $message->getStatus(),
-                        "paused" => $message->getPaused()
+                        "queue" => $event->getQueue(),
+                        "name" => $event->getMemberName(),
+                        "membership" => $event->getMembership(),
+                        "calls_taken" => $event->getCallsTaken(),
+                        "status" => $event->getStatus(),
+                        "paused" => $event->getPaused()
                     ]);
                 }
                 break;
 
             case "QueueMemberRemoved":
-                if(in_array($message->getQueue(), SELF::QUEUES)){
-                    echo "Agent ".$message->getMemberName()." logged out\n";
+                if(in_array($event->getQueue(), SELF::QUEUES)){
+                    echo "Agent ".$event->getMemberName()." logged out\n";
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
-                        "queue", $message->getQueue(),
+                        "queue", $event->getQueue(),
                     )->where(
-                        "name", $message->getMemberName()
+                        "name", $event->getMemberName()
                     )->delete();
                 }
                 break;
 
             case "QueueMemberPause":
-                if(in_array($message->getQueue(), SELF::QUEUES)){
-                    echo "Agent ".$message->getMemberName()." un/paused\n";
+                if(in_array($event->getQueue(), SELF::QUEUES)){
+                    echo "Agent ".$event->getMemberName()." un/paused\n";
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
-                        "name", $message->getMemberName()
+                        "name", $event->getMemberName()
                     )->update([
                         "paused" => $event->getPaused()
                     ]);
