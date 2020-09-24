@@ -22,14 +22,14 @@ class PBX
     ];
 
     const QUEUE_STATUS = [
-        AVAILABLE => 1,
-        IN_CALL => 2,
-        BUSY => 3,
-        INVALID => 4,
-        UNAVAILABLE => 5,
-        RINGING => 6,
-        RING_IN_USE => 7,
-        ON_HOLD => 8
+        "AVAILABLE" => 1,
+        "IN_CALL" => 2,
+        "BUSY" => 3,
+        "INVALID" => 4,
+        "UNAVAILABLE" => 5,
+        "RINGING" => 6,
+        "RING_IN_USE" => 7,
+        "ON_HOLD" => 8
     ];
 
     protected $config;
@@ -151,7 +151,7 @@ class PBX
                 $this->config['queues_table']
             )->insert($queues);
 
-            $client->close();
+            $this->client->close();
 
         } catch (\Throwable $e) {
             Log::error($e->getMessage());
@@ -201,7 +201,7 @@ class PBX
                     )->where(
                         "name", $message->getMemberName()
                     )->update([
-                        "status" => SELF::QUEUE_STATUS[IN_CALL]
+                        "status" => SELF::QUEUE_STATUS["IN_CALL"]
                     ]);
                 }
                 break;
@@ -214,7 +214,7 @@ class PBX
                     )->where(
                         "name", $message->getMemberName()
                     )->update([
-                        "status" => SELF::QUEUE_STATUS[AVAILABLE]
+                        "status" => SELF::QUEUE_STATUS["AVAILABLE"]
                     ]);
                 }
                 break;
