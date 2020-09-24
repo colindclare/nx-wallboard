@@ -230,7 +230,7 @@ class PBX
                         "position" => $event->getPosition(),
                         "calleridnum" => $event->getCallerIDNum(),
                         "calleridname" => $event->getCallerIDName(),
-                        "call_time" => DB::raw('now() - '.$event->getWait())
+                        "call_time" => NULL
                     ]);
                 }
                 break;
