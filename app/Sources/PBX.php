@@ -117,7 +117,7 @@ class PBX
                             "position" => $event->getPosition(),
                             "calleridnum" => $event->getCallerIDNum(),
                             "calleridname" => $event->getCallerIDName(),
-                            "call_time" => DB::raw('now() - '.$event->getWait())
+                            "call_time" => DB::raw('now() - INTERVAL '.$event->getWait().' SECOND')
                         ];
                         break;
 
@@ -257,7 +257,7 @@ class PBX
                         "name" => $event->getMemberName(),
                         "membership" => $event->getMembership(),
                         "calls_taken" => $event->getCallsTaken(),
-                        "status" => $event->getStatus(),
+                        "status" => SELF::QUEUE_STATUS["AVAILABLE"],
                         "paused" => $event->getPaused()
                     ]);
                 }
