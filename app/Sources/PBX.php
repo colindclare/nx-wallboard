@@ -290,9 +290,29 @@ class PBX
                     }
                     break;
 
-                case "QueueMemberRinginuse":
+                case "AgentCalled":
                     if(in_array($event->getQueue(), SELF::QUEUES)){
-                        echo "Agent ".$event->getMemberName()." Ringing: ".$event->getRingInUse()."\n";
+                        echo "Agent ".$event->getMemberName()." Ringing\n";
+                        DB::table(
+                            $this->config['queue_users_table']
+                        )->where(
+                            "name", $event->getMemberName()
+                        )->update([
+                            "status" => SELF::QUEUE_STATUS["RINGING"],
+                        ]);
+                    }
+                    break;
+
+                case "AgentRingNoAnswer":
+                    if(in_array($event->getQueue(), SELF::QUEUES)){
+                        echo "Agent ".$event->getMemberName()." Not Ringing\n";
+                        DB::table(
+                            $this->config['queue_users_table']
+                        )->where(
+                            "name", $event->getMemberName()
+                        )->update([
+                            "status" => SELF::QUEUE_STATUS["AVAILABLE"],
+                        ]);
                     }
                     break;
 
