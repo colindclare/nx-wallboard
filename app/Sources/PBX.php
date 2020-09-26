@@ -263,7 +263,7 @@ class PBX
 
                 case "QueueMemberAdded":
                     if(in_array($event->getQueue(), SELF::QUEUES)){
-                        echo "Agent ".$event->getMemberName()."logged in\n";
+                        echo "Agent ".$event->getMemberName()." logged in\n";
                         DB::table(
                             $this->config['queue_users_table']
                         )->insert([
