@@ -7,6 +7,7 @@ namespace App\Sources;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 use PAMI\Client\Impl\ClientImpl as Client;
 use PAMI\Message\Action\QueueStatusAction;
@@ -72,21 +73,23 @@ class PBX
 
         try {
 
-            $this->client->send(new EventsAction());
-
             $users = array();
             $queues = array();
             $entries = array();
 
-            foreach(self::QUEUES as $key => $value){
+            $sync_id = Str::random(8);
+
+            $this->client->send(new EventsAction());
+
+            foreach(SELF::QUEUES as $key => $value){
 
                 $response = $this->client->send(new QueueStatusAction($value));
 
                 foreach($response->getEvents() as $event){
 
-                    switch (get_class($event)) {
+                    switch ($event->getName()) {
 
-                    case "PAMI\Message\Event\QueueParamsEvent":
+                    case "QueueParams":
                         $queues[] = [
                             "queue" => $event->getQueue(),
                             "max" => $event->getMax(),
@@ -99,18 +102,31 @@ class PBX
                         ];
                         break;
 
-                    case "PAMI\Message\Event\QueueMemberEvent":
-                        $users[] = [
+                    case "QueueMember":
+
+                        if ( $event->getStatus() != SELF::QUEUE_STATUS["IN_CALL"]){
+                            $call_start = 'NULL';
+                        } else {
+                            $call_start = 'call_start';
+                        }
+
+                        DB::table(
+                            $this->config['queue_users_table']
+                        )->updateOrInsert([
                             "queue" => $event->getQueue(),
-                            "name" => $event->getMemberName(),
+                            "name" => $event->getMemberName()
+                        ],
+                        [
                             "membership" => $event->getMembership(),
                             "calls_taken" => $event->getCallsTaken(),
                             "status" => $event->getStatus(),
-                            "paused" => $event->getPaused()
-                        ];
+                            "paused" => $event->getPaused(),
+                            "sync_id" => $sync_id,
+                            "call_start" => DB::raw($call_start)
+                        ]);
                         break;
 
-                    case "PAMI\Message\Event\QueueEntryEvent":
+                    case "QueueEntry":
                         $entries[] = [
                             "channel" => $event->getChannel(),
                             "queue" => $event->getQueue(),
@@ -126,14 +142,9 @@ class PBX
                     }
                 }
             }
-
             DB::table(
                 $this->config['queue_users_table']
-            )->truncate();
-
-            DB::table(
-                $this->config['queue_users_table']
-            )->insert($users);
+            )->where('sync_id','!=',$sync_id)->delete();
 
             DB::table(
                 $this->config['queue_entries_table']
@@ -202,7 +213,8 @@ class PBX
                         )->where(
                             "name", $event->getMemberName()
                         )->update([
-                            "status" => SELF::QUEUE_STATUS["IN_CALL"]
+                            "status" => SELF::QUEUE_STATUS["IN_CALL"],
+                            "call_start" => DB::raw('now()')
                         ]);
                     }
                     break;
@@ -215,7 +227,8 @@ class PBX
                         )->where(
                             "name", $event->getMemberName()
                         )->update([
-                            "status" => SELF::QUEUE_STATUS["AVAILABLE"]
+                            "status" => SELF::QUEUE_STATUS["AVAILABLE"],
+                            "call_start" => NULL
                         ]);
                     }
                     break;
