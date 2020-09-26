@@ -168,6 +168,18 @@ class PBX
             Log::error($e->getMessage());
         }
 
+        $this->checkDaemon();
+
+    }
+
+    private function checkDaemon() {
+
+        exec('pgrep -f "php ('.base_path('artisan').'|artisan) pbx:daemon"', $pids);
+
+        if(empty($pids)){
+            exec('nohup php '.base_path('artisan').' pbx:daemon > /dev/null &', $pids);
+        }
+
     }
 
     public function runDaemon() {
