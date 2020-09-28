@@ -29,19 +29,21 @@ class Drift
 
         $convo_counts = array();
 
-        foreach($conversations as $conversation => $user){
+        foreach ($conversations as $conversation => $user) {
 
-            if($user === "NaN") {
+            if ($user === "NaN") {
 
-                $user = Http::withOptions([
-                    'timeout' => 60
-                ])->withToken(
+                $user = Http::withOptions(
+                    [
+                        'timeout' => 60
+                    ]
+                )->withToken(
                     $this->config['token']
                 )->get(
                     $this->config['conversations']['gateway'] . $conversation
                 )->throw()->json();
 
-                if(isset($user['data']['participants'][0])) {
+                if (isset($user['data']['participants'][0])) {
                     $user = $user['data']['participants'][0];
                 } else {
                     $user = self::BOT;
@@ -49,7 +51,7 @@ class Drift
 
             }
 
-            if(isset($convo_counts[$user])){
+            if (isset($convo_counts[$user])) {
                 $convo_counts[$user] += 1;
             } else {
                 $convo_counts[$user] = 1;
@@ -65,9 +67,11 @@ class Drift
 
     private function processUsers(Array $convo_counts) {
 
-        $userlist = Http::withOptions([
-            'timeout' => 60
-        ])->withToken(
+        $userlist = Http::withOptions(
+            [
+                'timeout' => 60
+            ]
+        )->withToken(
             $this->config['token']
         )->get(
             $this->config['users']['gateway']
@@ -75,9 +79,9 @@ class Drift
 
         try {
 
-            foreach($userlist['data'] as $user){
+            foreach ($userlist['data'] as $user) {
 
-                if(!isset($convo_counts[$user['id']])){
+                if (!isset($convo_counts[$user['id']])) {
                     $convo_counts[$user['id']] = 0;
                 }
 
@@ -140,9 +144,11 @@ class Drift
             ]
         ];
 
-        $conversation_list = Http::withOptions([
-            'timeout' => 60
-        ])->withToken(
+        $conversation_list = Http::withOptions(
+            [
+                'timeout' => 60
+            ]
+        )->withToken(
             $this->config['token']
         )->withBody(
             json_encode($body),
@@ -151,11 +157,11 @@ class Drift
             $this->config['conversations']['report_gateway']
         )->throw()->json();
 
-        if (!isset($conversation_list['data'])){
+        if (!isset($conversation_list['data'])) {
             return array();
         }
 
-        foreach($conversation_list['data'] as $conversation){
+        foreach ($conversation_list['data'] as $conversation) {
             $map[$conversation['conversationId']] = $conversation['metrics'][0];
         }
 
