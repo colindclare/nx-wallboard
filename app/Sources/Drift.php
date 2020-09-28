@@ -23,7 +23,8 @@ class Drift
         $this->config = Config::get('sources.drift');
     }
 
-    public function process() {
+    public function process()
+    {
 
         $conversations = $this->getOpenConversations();
 
@@ -65,7 +66,8 @@ class Drift
 
     }
 
-    private function processUsers(Array $convo_counts) {
+    private function processUsers(Array $convo_counts)
+    {
 
         $userlist = Http::withOptions(
             [
@@ -124,7 +126,8 @@ class Drift
         return true;
     }
 
-    private function getOpenConversations() {
+    private function getOpenConversations()
+    {
 
         $body = [
             'filters' => [
@@ -169,7 +172,8 @@ class Drift
 
     }
 
-    private function updateTotals($count) {
+    private function updateTotals($count)
+    {
 
         try {
 

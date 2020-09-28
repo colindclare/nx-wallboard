@@ -55,7 +55,8 @@ class PBX
 
     }
 
-    private function startClient() {
+    private function startClient()
+    {
 
         $this->client = new Client($this->clientOptions);
         $this->client->open();
@@ -69,7 +70,8 @@ class PBX
 
     }
 
-    public function process() {
+    public function process()
+    {
 
         try {
 
@@ -104,7 +106,7 @@ class PBX
 
                     case "QueueMember":
 
-                        if ( $event->getStatus() != SELF::QUEUE_STATUS["IN_CALL"]) {
+                        if ($event->getStatus() != SELF::QUEUE_STATUS["IN_CALL"]) {
                             $call_start = 'NULL';
                         } else {
                             $call_start = 'call_start';
@@ -174,7 +176,8 @@ class PBX
 
     }
 
-    private function checkDaemon() {
+    private function checkDaemon()
+    {
 
         exec('pgrep -f "php ('.base_path('artisan').'|artisan) pbx:daemon"', $pids);
 
@@ -184,9 +187,10 @@ class PBX
 
     }
 
-    public function runDaemon() {
+    public function runDaemon()
+    {
 
-        register_tick_function(array(&$this, 'callProcessFunc'),true);
+        register_tick_function(array(&$this, 'callProcessFunc'), true);
 
         while (true){
             usleep(1000);
@@ -198,7 +202,8 @@ class PBX
 
     }
 
-    public function callProcessFunc() {
+    public function callProcessFunc()
+    {
 
         try {
 
@@ -214,7 +219,8 @@ class PBX
 
     }
 
-    public function processEvent($event){
+    public function processEvent($event)
+    {
 
         try {
             switch ($event->getName()) {
