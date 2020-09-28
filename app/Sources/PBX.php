@@ -109,7 +109,7 @@ class PBX
                         if ($event->getStatus() != SELF::QUEUE_STATUS["IN_CALL"]) {
                             $call_start = 'NULL';
                         } else {
-                            $call_start = 'call_start';
+                            $call_start = 'case when call_start is NULL then now() else call_start end';
                         }
 
                         DB::table(
