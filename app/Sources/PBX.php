@@ -51,11 +51,11 @@ class PBX
             'read_timeout' => 6000
         );
 
-        $this->startClient();
+        $this->_startClient();
 
     }
 
-    private function startClient()
+    private function _startClient()
     {
 
         $this->client = new Client($this->clientOptions);
@@ -83,11 +83,11 @@ class PBX
 
             $this->client->send(new EventsAction());
 
-            foreach (SELF::QUEUES as $key => $value){
+            foreach (SELF::QUEUES as $key => $value) {
 
                 $response = $this->client->send(new QueueStatusAction($value));
 
-                foreach ($response->getEvents() as $event){
+                foreach ($response->getEvents() as $event) {
 
                     switch ($event->getName()) {
 
@@ -172,11 +172,11 @@ class PBX
             Log::error($e->getMessage());
         }
 
-        $this->checkDaemon();
+        $this->_checkDaemon();
 
     }
 
-    private function checkDaemon()
+    private function _checkDaemon()
     {
 
         exec('pgrep -f "php ('.base_path('artisan').'|artisan) pbx:daemon"', $pids);
@@ -192,7 +192,7 @@ class PBX
 
         register_tick_function(array(&$this, 'callProcessFunc'), true);
 
-        while (true){
+        while (true) {
             usleep(1000);
         }
 
@@ -214,7 +214,7 @@ class PBX
             Log::error("PBX Daemon: Recovering from ".$e->getMessage());
             sleep(1);
             $this->client->close();
-            $this->startClient();
+            $this->_startClient();
         }
 
     }

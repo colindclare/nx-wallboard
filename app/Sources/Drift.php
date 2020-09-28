@@ -26,7 +26,7 @@ class Drift
     public function process()
     {
 
-        $conversations = $this->getOpenConversations();
+        $conversations = $this->_getOpenConversations();
 
         $convo_counts = array();
 
@@ -60,13 +60,13 @@ class Drift
 
         }
 
-        $this->processUsers($convo_counts);
+        $this->_processUsers($convo_counts);
 
-        $this->updateTotals(count($conversations));
+        $this->_updateTotals(count($conversations));
 
     }
 
-    private function processUsers(Array $convo_counts)
+    private function _processUsers(Array $convo_counts)
     {
 
         $userlist = Http::withOptions(
@@ -126,7 +126,7 @@ class Drift
         return true;
     }
 
-    private function getOpenConversations()
+    private function _getOpenConversations()
     {
 
         $body = [
@@ -172,7 +172,7 @@ class Drift
 
     }
 
-    private function updateTotals($count)
+    private function _updateTotals($count)
     {
 
         try {
