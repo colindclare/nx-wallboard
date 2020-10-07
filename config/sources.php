@@ -16,6 +16,17 @@ return [
         ]
     ],
 
+    'liveagent' => [
+        'users' => [
+            'table' => 'liveagent_users',
+            'gateway' => 'https://wallboard.supportdev.liquidweb.com/api/data/agents'
+        ],
+        'queue' => [
+            'table' => 'liveagent_queue',
+            'gateway' => 'https://wallboard.supportdev.liquidweb.com/api/data/maps/chats'
+        ]
+    ],
+
     'pbx' => [
         'host' => '10.30.100.40',
         'port' => '5038',
