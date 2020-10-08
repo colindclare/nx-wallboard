@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use PAMI\Client\Impl\ClientImpl as Client;
 use PAMI\Message\Action\QueueStatusAction;
 use PAMI\Message\Action\EventsAction;
+use PAMI\Message\Action\PingAction;
 
 class PBX
 {
@@ -21,6 +22,8 @@ class PBX
         "T2" => 102,
         "ESG" => 103
     ];
+
+    const PING_INTERVAL = 300;
 
     const QUEUE_STATUS = [
         "AVAILABLE" => 1,
@@ -47,7 +50,7 @@ class PBX
             'port' => $this->config['port'],
             'username' => $this->config['username'],
             'secret' => $this->config['secret'],
-            'connect_timeout' => 6000,
+            'connect_timeout' => 60,
             'read_timeout' => 6000
         );
 
@@ -192,8 +195,39 @@ class PBX
 
         register_tick_function(array(&$this, 'callProcessFunc'), true);
 
+        $ping_timer = 0;
+
         while (true) {
-            usleep(1000);
+
+            sleep(1);
+
+            $ping_timer+=1;
+
+            if ($ping_timer >= self::PING_INTERVAL) {
+
+                echo date("H:i:s") ." PING\n";
+
+                try {
+                    $response = $this->client->send(
+                        new PingAction()
+                    );
+
+                    if (!$response->isSuccess()) {
+                        throw new \PAMI\Client\Exception\ClientException();
+                    }
+
+                } catch(\PAMI\Client\Exception\ClientException $e){
+
+                    Log::error("PBX Daemon - Ping: Recovering from ".$e->getMessage());
+
+                    $this->client->close();
+                    $this->_startClient();
+
+                }
+
+                $ping_timer = 0;
+            }
+
         }
 
         $this->client->close();
