@@ -99,6 +99,12 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'pbx' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/pbx.log'),
+            'level' => 'debug',
+        ],
     ],
 
 ];

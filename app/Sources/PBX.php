@@ -58,18 +58,29 @@ class PBX
 
     }
 
-    private function _startClient()
+    private function _startClient($sleep = 5)
     {
 
-        $this->client = new Client($this->clientOptions);
-        $this->client->open();
-        //$this->client->setLogger(Log::getLogger());
+        try {
+            $this->client = new Client($this->clientOptions);
+            $this->client->open();
+            //$this->client->setLogger(Log::getLogger());
 
-        $this->client->send(
-            new EventsAction(array('call','agent'))
-        );
+            $this->client->send(
+                new EventsAction(array('call','agent'))
+            );
 
-        $this->client->registerEventListener(array($this,'processEvent'));
+            $this->client->registerEventListener(array($this,'processEvent'));
+        } catch (\Throwable $e) {
+
+            $sleep *= 2;
+
+            Log::error("PBX Client Start encountered error. Sleeping ".$sleep.": ".get_class($e)." ".$e->getMessage());
+            sleep($sleep);
+
+            $this->_startClient($sleep);
+
+        }
 
     }
 
@@ -172,7 +183,7 @@ class PBX
             $this->client->close();
 
         } catch (\Throwable $e) {
-            Log::error($e->getMessage());
+            Log::error("PBX Cron: ".get_class($e)." ".$e->getMessage());
         }
 
         $this->_checkDaemon();
@@ -218,8 +229,7 @@ class PBX
 
                 } catch(\PAMI\Client\Exception\ClientException $e){
 
-                    Log::error("PBX Daemon - Ping: Recovering from ".$e->getMessage());
-
+                    Log::error("PBX Daemon - Ping: Recovering from ".get_class($e)." ".$e->getMessage());
                     $this->client->close();
                     $this->_startClient();
 
@@ -243,9 +253,9 @@ class PBX
 
             $this->client->process();
 
-        } catch(\PAMI\Client\Exception\ClientException $e){
+        } catch(\Throwable $e){
 
-            Log::error("PBX Daemon: Recovering from ".$e->getMessage());
+            Log::error("PBX Daemon: Recovering from ".get_class($e)." ".$e->getMessage());
             sleep(1);
             $this->client->close();
             $this->_startClient();
@@ -262,6 +272,7 @@ class PBX
             case "AgentConnect":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Agent ".$event->getMemberName()." started call\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
@@ -278,6 +289,7 @@ class PBX
             case "AgentComplete":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Agent ".$event->getMemberName()." finished call\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
@@ -294,6 +306,7 @@ class PBX
             case "QueueCallerJoin":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Caller ".$event->getCallerIDNum()." is calling\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_entries_table']
                     )->insert(
@@ -313,6 +326,7 @@ class PBX
             case "QueueCallerLeave":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Caller ".$event->getCallerIDNum()." left queue\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_entries_table']
                     )->where(
@@ -324,6 +338,7 @@ class PBX
             case "QueueMemberAdded":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Agent ".$event->getMemberName()." logged in\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_users_table']
                     )->insert(
@@ -342,6 +357,7 @@ class PBX
             case "QueueMemberRemoved":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Agent ".$event->getMemberName()." logged out\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
@@ -355,6 +371,7 @@ class PBX
             case "QueueMemberPause":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Agent ".$event->getMemberName()." Paused: ".$event->getPaused()."\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
@@ -370,6 +387,7 @@ class PBX
             case "AgentCalled":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Agent ".$event->getMemberName()." Ringing\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
@@ -385,6 +403,7 @@ class PBX
             case "AgentRingNoAnswer":
                 if (in_array($event->getQueue(), SELF::QUEUES)) {
                     echo "Agent ".$event->getMemberName()." Not Ringing\n";
+                    Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_users_table']
                     )->where(
@@ -401,8 +420,8 @@ class PBX
                 break;
 
             }
-        } catch(\Exception $e) {
-            Log::error($e->getMessage());
+        } catch(\Throwable $e) {
+            Log::error("PBX Daemon: ".get_class($e)." ".$e->getMessage());
         }
     }
 }
