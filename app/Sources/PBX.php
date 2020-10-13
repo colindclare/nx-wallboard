@@ -24,6 +24,7 @@ class PBX
     ];
 
     const PING_INTERVAL = 300;
+    const MAX_RECONNECT_ATTEMPTS = 4;
 
     const QUEUE_STATUS = [
         "AVAILABLE" => 1,
@@ -54,12 +55,19 @@ class PBX
             'read_timeout' => 6000
         );
 
-        $this->_startClient();
+        if (!$this->_startClient()){
+            return false;
+        }
 
     }
 
-    private function _startClient($sleep = 5)
+    private function _startClient($sleep = 5, $attempts = 0)
     {
+
+        if ($attempts >= self::MAX_RECONNECT_ATTEMPTS) {
+            Log::error("PBX Client Start giving up after ".$attempts." attempts.");
+            return false;
+        }
 
         try {
             $this->client = new Client($this->clientOptions);
@@ -73,12 +81,14 @@ class PBX
             $this->client->registerEventListener(array($this,'processEvent'));
         } catch (\Throwable $e) {
 
-            $sleep *= 2;
-
             Log::error("PBX Client Start encountered error. Sleeping ".$sleep.": ".get_class($e)." ".$e->getMessage());
-            sleep($sleep);
 
-            $this->_startClient($sleep);
+            sleep($sleep);
+            $sleep = $sleep >= 30 ? 60 : $sleep * 2;
+
+            if(!$this->_startClient($sleep, ++$attempts)){
+                return false;
+            }
 
         }
 
@@ -231,7 +241,9 @@ class PBX
 
                     Log::error("PBX Daemon - Ping: Recovering from ".get_class($e)." ".$e->getMessage());
                     $this->client->close();
-                    $this->_startClient();
+                    if (!$this->_startClient()) {
+                        return false;
+                    }
 
                 }
 
@@ -256,9 +268,10 @@ class PBX
         } catch(\Throwable $e){
 
             Log::error("PBX Daemon: Recovering from ".get_class($e)." ".$e->getMessage());
-            sleep(1);
             $this->client->close();
-            $this->_startClient();
+            if (!$this->_startClient()) {
+                return false;
+            }
         }
 
     }
@@ -309,9 +322,11 @@ class PBX
                     Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_entries_table']
-                    )->insert(
+                    )->updateOrInsert(
                         [
-                            "channel" => $event->getChannel(),
+                            "channel" => $event->getChannel()
+                        ],
+                        [
                             "queue" => $event->getQueue(),
                             "position" => $event->getPosition(),
                             "calleridnum" => $event->getCallerIDNum(),
@@ -341,10 +356,12 @@ class PBX
                     Log::channel('pbx')->debug($event->getRawContent());
                     DB::table(
                         $this->config['queue_users_table']
-                    )->insert(
+                    )->updateOrInsert(
                         [
                             "queue" => $event->getQueue(),
-                            "name" => $event->getMemberName(),
+                            "name" => $event->getMemberName()
+                        ],
+                        [
                             "membership" => $event->getMembership(),
                             "calls_taken" => $event->getCallsTaken(),
                             "status" => SELF::QUEUE_STATUS["AVAILABLE"],
