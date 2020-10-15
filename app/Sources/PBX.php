@@ -61,7 +61,7 @@ class PBX
 
     }
 
-    private function _startClient($sleep = 5, $attempts = 0)
+    private function _startClient($attempts = 0)
     {
 
         if ($attempts >= self::MAX_RECONNECT_ATTEMPTS) {
@@ -70,6 +70,11 @@ class PBX
         }
 
         try {
+
+            if(!is_null($this->client)){
+                $this->client->close();
+            }
+
             $this->client = new Client($this->clientOptions);
             $this->client->open();
             //$this->client->setLogger(Log::getLogger());
@@ -81,12 +86,9 @@ class PBX
             $this->client->registerEventListener(array($this,'processEvent'));
         } catch (\Throwable $e) {
 
-            Log::error("PBX Client Start encountered error. Sleeping ".$sleep.": ".get_class($e)." ".$e->getMessage());
+            Log::error("PBX Client Start encountered error. Starting attempt ".++$attempts.": ".get_class($e)." ".$e->getMessage());
 
-            sleep($sleep);
-            $sleep = $sleep >= 30 ? 60 : $sleep * 2;
-
-            if(!$this->_startClient($sleep, ++$attempts)){
+            if(!$this->_startClient($sleep, $attempts)){
                 return false;
             }
 
@@ -240,7 +242,6 @@ class PBX
                 } catch(\PAMI\Client\Exception\ClientException $e){
 
                     Log::error("PBX Daemon - Ping: Recovering from ".get_class($e)." ".$e->getMessage());
-                    $this->client->close();
                     if (!$this->_startClient()) {
                         return false;
                     }
@@ -268,7 +269,6 @@ class PBX
         } catch(\Throwable $e){
 
             Log::error("PBX Daemon: Recovering from ".get_class($e)." ".$e->getMessage());
-            $this->client->close();
             if (!$this->_startClient()) {
                 return false;
             }
