@@ -88,7 +88,7 @@ class PBX
 
             Log::error("PBX Client Start encountered error. Starting attempt ".++$attempts.": ".get_class($e)." ".$e->getMessage());
 
-            if (!$this->_startClient($sleep, $attempts)) {
+            if (!$this->_startClient($attempts)) {
                 return false;
             }
 
