@@ -55,7 +55,7 @@ class PBX
             'read_timeout' => 6000
         );
 
-        if (!$this->_startClient()){
+        if (!$this->_startClient()) {
             return false;
         }
 
@@ -71,7 +71,7 @@ class PBX
 
         try {
 
-            if(!is_null($this->client)){
+            if (!is_null($this->client)) {
                 $this->client->close();
             }
 
@@ -88,7 +88,7 @@ class PBX
 
             Log::error("PBX Client Start encountered error. Starting attempt ".++$attempts.": ".get_class($e)." ".$e->getMessage());
 
-            if(!$this->_startClient($sleep, $attempts)){
+            if (!$this->_startClient($sleep, $attempts)) {
                 return false;
             }
 
