@@ -111,9 +111,9 @@ class LiveAgent
                 ]
             );
 
-            DB::table(
-                $this->config['users']['history_table']
-            )->insert($users_history);
+            //DB::table(
+                //$this->config['users']['history_table']
+            //)->insert($users_history);
 
         } catch (\PDOException $e) {
             Log::error($e->getMessage());
