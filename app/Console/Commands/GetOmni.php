@@ -4,14 +4,14 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class GetLiveAgent extends Command
+class GetOmni extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'liveagent:get-data';
+    protected $signature = 'omni:get';
 
     /**
      * The console command description.
@@ -37,7 +37,7 @@ class GetLiveAgent extends Command
      */
     public function handle()
     {
-        $liveagent=new \App\Sources\LiveAgent;
-        $liveagent->process();
+        $omni=new \App\Sources\Omni;
+        $omni->process();
     }
 }
