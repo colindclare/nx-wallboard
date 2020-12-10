@@ -85,21 +85,29 @@ return [
 			'name' => 'ESG',
 			'id' => 3
 		],
-		150 => [
-			'name' => 'Worx/SysOps Pending',
+		160 => [
+			'name' => 'Tier 1 - Critical',
 			'id' => 4
 		],
-		114 => [
-			'name' => 'Overages',
+		162 => [
+			'name' => 'Tier 2 - Critical',
 			'id' => 5
+		],
+		161 => [
+			'name' => 'ESG - Critical',
+			'id' => 6
+		],
+		150 => [
+			'name' => 'Worx/SysOps Pending',
+			'id' => 7
 		],
 		26 => [
 			'name' => 'HDM',
-			'id' => 6
+			'id' => 8
 		],
 		999 => [
 			'name' => 'Total',
-			'id' => 7
+			'id' => 9
 		]
             ],
 	    'migrations' => [

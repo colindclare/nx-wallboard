@@ -57,7 +57,7 @@ class NocWorx {
 	$ticketTotals['migrations'] = $this->countTickets($tickets['migrations'], $this->config['escalations']['migrations']);
 
 	$hdmWpCount = count($tickets['support_hdm']);
-	$ticketTotals['support'][5]['total'] = $ticketTotals['support'][5]['total'] + $hdmWpCount;
+	$ticketTotals['support'][7]['total'] = $ticketTotals['support'][7]['total'] + $hdmWpCount;
 
         foreach ($ticketTotals['support'] as $total) {
             DB::table($this->config['ticket_table'])->updateOrInsert(
@@ -120,11 +120,11 @@ class NocWorx {
 
         foreach ($queue as $ticket) { 
             if (array_key_exists('escalation', $ticket)) { 
-		$escId = $ticket['escalation']['id'];
-		if (array_key_exists($escId, $escalations)) {
-		    $escalation = $escalations[$escId]['name'];
+		$ticketEscId = $ticket['escalation']['id'];
+		if (array_key_exists($ticketEscId, $escalations)) {
+		    $escalation = $escalations[$ticketEscId]['name'];
 		} else {
-		    Log::error("Unidentified escalation found: $escId, ".$ticket['escalation']['identity']);
+		    Log::error("Unidentified escalation found: $ticketEscId, ".$ticket['escalation']['identity']);
 		    $escalation = 'Unescalated';
 		}
             } else { 
