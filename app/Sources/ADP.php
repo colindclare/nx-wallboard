@@ -20,7 +20,7 @@ class Adp
 	$gatewaySchedule = $gateway.$this->endpoints['schedules']['uri'];
 
 	$authParams = $this->endpoints['auth']['data'];
-	
+
 	if ($shift == 'third') {
 	    $scheduleParams = $this->endpoints['schedules']['data']['third'];
 	} else {
@@ -76,7 +76,7 @@ class Adp
 			'name' => $user['person']['first_name'].' '.$user['person']['last_name'],
 			'start_time' => $user['start_date'].' '.$user['start_time'],
 			'end_time' => $user['end_date'].' '.$user['end_time'],
-			'email' => $user['person']['email'], 
+			'email' => $user['person']['email'],
 			'title' => $user['person']['user']['title'],
 			'type' => $user['type']
 		    ];
