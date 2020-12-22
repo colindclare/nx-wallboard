@@ -40,14 +40,10 @@ return [
         'uri' => '/adp/schedules',
         'data' => [
           'normal' => [
-            'per_page' => 400,
-            'start_date' => date("Y-m-d"),
-            'end_date' => date("Y-m-d")
+            'per_page' => 400
           ],
           'third' => [
             'per_page' => 400,
-            'start_date' => date("Y-m-d"),
-            'end_date' => date("Y-m-d", strtotime(' +1 day')),
             'end_time' => '07:00:00'
           ]
         ]

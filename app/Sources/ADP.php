@@ -12,6 +12,14 @@ class Adp
     public function __construct() {
 	$this->config=Config::get('sources.adp');
 	$this->endpoints=Config::get('sources.adp.endpoints');
+
+	$date = date("Y-m-d");
+
+	$this->endpoints['schedules']['data']['normal']['start_date'] = $date;
+	$this->endpoints['schedules']['data']['normal']['end_date'] = $date;
+
+	$this->endpoints['schedules']['data']['third']['start_date'] = $date;
+	$this->endpoints['schedules']['data']['third']['end_date'] = date("Y-m-d", strtotime(' +1 day'));
     }
 
     public function processSchedules($shift = NULL) {
