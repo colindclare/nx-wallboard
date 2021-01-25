@@ -10,6 +10,10 @@ return [
     'queue' => [
       'table' => 'liveagent_queue',
       'gateway' => 'https://wallboard.supportdev.liquidweb.com/api/data/maps/chats'
+    ],
+    'cases' => [
+      'table' => 'salesforce_cases',
+      'gateway' => 'https://wallboard.supportdev.liquidweb.com/api/data/maps/cases'
     ]
   ],
 
@@ -20,7 +24,8 @@ return [
     'secret' => env('PBX_SECRET'),
     'queue_users_table' => 'pbx_queue_users',
     'queue_entries_table' => 'pbx_queue_entries',
-    'queues_table' => 'pbx_queues'
+    'queues_table' => 'pbx_queues',
+    'call_count_table' => 'pbx_call_counts'
   ],
 
   'adp' => [
@@ -60,7 +65,7 @@ return [
     'gateway' => 'https://nocworx.nexcess.net/',
     'public' => env('NOCWORX_PUBLIC'),
     'private' => env('NOCWORX_PRIVATE'),
-    'user_table' => 'nocworx_users',
+    'esg_projects_table' => 'nocworx_esg_projects',
     'ticket_table' => 'nocworx_tickets',
     'migrations_table' => 'nocworx_migration_tickets',
     'site_down_table' => 'nocworx_site_down',
@@ -161,6 +166,14 @@ return [
           'filter[status]' => '1',
           'filter[category-filter]' => '10',
           'filter[num_posts_staff]' => 'no',
+          'pageIndex' => 0
+        ]
+      ],
+      'esg_projects' => [
+	'uri' => 'ticket',
+	'data' => [
+	  'filter[department]' => '56',
+          'filter[status]' => '1',
           'pageIndex' => 0
         ]
       ]

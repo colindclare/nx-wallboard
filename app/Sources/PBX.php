@@ -313,6 +313,17 @@ class PBX
                             "call_start" => null
                         ]
                     );
+                    DB::table(
+                        $this->config['call_count_table']
+                    )->updateOrInsert(
+                        [
+                            "date" => DB::raw('curdate()'),
+                            "name" => $event->getMemberName()
+                        ],
+                        [
+                            "count" => DB::raw('count + 1')
+                        ]
+                    );
                 }
                 break;
 

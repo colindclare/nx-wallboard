@@ -51,7 +51,7 @@ class Omni
         $users = array();
 
         foreach ($rawUsers as $user => $data) {
-            if (isset($data["dept"]) && $data["dept"] == self::DEPARTMENT) {
+            //if (isset($data["dept"]) && $data["dept"] == self::DEPARTMENT) {
                 $users[] =  [
                     "username" => $user,
                     "calls" => isset($data["calls"]) ? $data["calls"] : 0,
@@ -78,7 +78,7 @@ class Omni
                     "supervisor" => isset($data["supervisor"]) ? $data["supervisor"] : null,
                     "title" => isset($data["title"]) ? $data["title"] : null
                 ];
-            }
+            //}
         }
 
         return $users;
